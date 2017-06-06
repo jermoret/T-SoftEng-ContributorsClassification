@@ -1,1 +1,1 @@
-# Classification of developpers based on git activity 
+# Classification of developpers based on git activity ## Usage### dataset.py```python dataset.py -i <repository_path> -o <output_csv> -s <since_date>```### aggregation.py```python aggregation.py -i <dataset> -o <aggregated_csv> ```
