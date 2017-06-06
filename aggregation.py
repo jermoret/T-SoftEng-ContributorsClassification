@@ -2,7 +2,7 @@ import sys, getopt
 import csv
 
 def main(argv):
-    inputfile = 'swissnuclearexit_25s.csv'
+    inputfile = ''
     outputfile = 'data.csv'
     try:
         opts, args = getopt.getopt(argv, "hi:o:", ["ifile=", "ofile="])

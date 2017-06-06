@@ -3,6 +3,7 @@
 import sys, getopt
 from dateutil import parser
 from datetime import timedelta
+from dateutil.parser import parse
 import git
 import csv
 import re
@@ -77,10 +78,11 @@ def computeChurns(commit_hash, previous_commit_hash, filename, author_name, date
 def main(argv):
     inputfile = ''
     outputfile = 'dataset.csv'
+    sinceArg = ''
     try:
-        opts, args = getopt.getopt(argv, "hi:o:", ["ifile=", "ofile="])
+        opts, args = getopt.getopt(argv, "hi:o:s:", ["ifile=", "ofile=", "since="])
     except getopt.GetoptError:
-        print 'usage : -i <inputfile> -o <outputfile>'
+        print 'usage : -i <inputfile> -o <outputfile> -s <since>'
         sys.exit(2)
     for opt, arg in opts:
         if opt == '-h':
@@ -90,10 +92,15 @@ def main(argv):
             inputfile = arg
         elif opt in ("-o", "--ofile"):
             outputfile = arg
+        elif opt in ("-s", "--since"):
+            sinceArg = '--since="' + parse(arg).strftime("%Y-%m-%dT%H:%M:%S") + '"'
 
     g = git.Git(inputfile)
-    # '--since="2016-01-03T00:00:00"'
-    loginfo = g.log('--pretty=format:%h%x09%s%x09%ae%x09%an%x09%ai%x09%p', '--numstat', '--reverse')
+    if sinceArg != '':
+        loginfo = g.log('--pretty=format:%h%x09%s%x09%ae%x09%an%x09%ai%x09%p', '--numstat', '--reverse', sinceArg)
+    else:
+        loginfo = g.log('--pretty=format:%h%x09%s%x09%ae%x09%an%x09%ai%x09%p', '--numstat', '--reverse')
+
 
     ofile = open(outputfile, "wb")
     writer = csv.writer(ofile, quoting=csv.QUOTE_NONNUMERIC)
@@ -113,8 +120,6 @@ def main(argv):
             author_name = chunks[3]
             commit_date = chunks[4]
             parent_commit_hash = chunks[5]
-            #if parent_commit_hash == "1b11438":
-                #print "hello"
         elif len(chunks) != 1:  # File line
             if (chunks[0] == '-'): continue
             additions = int(chunks[0])
